@@ -1,0 +1,23 @@
+name: 'Setup Go with Cache'
+description: 'Setup Go with optimized caching strategy'
+inputs:
+  go-version-file:
+    description: 'Path to go.mod file'
+    required: true
+  working-directory:
+    description: 'Working directory'
+    required: false
+    default: '.'
+  job-name:
+    description: 'Job name for cache key'
+    required: false
+    default: ${{ github.job }}
+outputs:
+  go-version:
+    description: 'Go version that was installed'
+  cache-hit:
+    description: 'Whether cache was hit'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+  post: 'dist/post/index.js'
