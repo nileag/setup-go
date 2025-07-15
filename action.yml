@@ -3,7 +3,12 @@ description: 'Setup Go with optimized caching strategy'
 inputs:
   go-version-file:
     description: 'Path to go.mod file'
-    required: true
+    required: false
+    default: 'go.mod'
+  cache-dependency-path:
+    description: 'Path to cache dependency file e.g. go.sum'
+    required: false
+    default: 'go.sum'
   working-directory:
     description: 'Working directory'
     required: false

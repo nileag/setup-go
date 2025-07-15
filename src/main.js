@@ -55,7 +55,7 @@ async function run() {
 
     // Build cache configuration
     const runner = process.env.RUNNER_OS || 'Linux';
-    const goSumPath = path.join(workingDirectory, 'go.sum');
+    const goSumPath = path.join(workingDirectory, cacheDependencyPath);
     const goSumHash = await getFileHash(goSumPath);
     const cacheKey = `golang-${runner}-${installedVersion}-${jobName}-${goSumHash}`;
     const restoreKeys = buildRestoreKeys(runner, installedVersion, jobName, goSumHash);
@@ -69,7 +69,7 @@ async function run() {
     core.debug(`Cache paths: ${cachePathsString.replace('\n', ', ')}`);
 
     // Restore cache
-    core.info('Restoring go cache...');
+    core.info('Restoring custom go cache...');
     const cachePaths = [
       path.join(process.env.HOME || process.env.USERPROFILE, '.cache', 'go-build'),
       path.join(process.env.HOME || process.env.USERPROFILE, 'go', 'pkg', 'mod')
