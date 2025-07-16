@@ -1,5 +1,5 @@
-name: 'Setup Go with Cache'
-description: 'Setup Go with optimized caching strategy'
+name: 'Setup go'
+description: 'Setup Go with job based cache naming strategy'
 inputs:
   go-version-file:
     description: 'Path to go.mod file'
@@ -20,9 +20,36 @@ inputs:
 outputs:
   go-version:
     description: 'Go version that was installed'
+    value: ${{ steps.setup-go.outputs.go-version }}
   cache-hit:
     description: 'Whether cache was hit'
+    value: ${{ steps.cache-go.outputs.cache-hit }}
+
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
-  post: 'dist/post/index.js'
+  using: 'composite'
+  steps:
+    - name: Setup
+      uses: 'actions/setup-go@v5'
+      working-directory: ${{ inputs.working-directory }}
+      with:
+        go-version-file: ${{ inputs.go-version-file }}
+        cache: false
+    - name: Cache
+      uses: 'actions/cache@v4'
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        go-version: ${{ steps.setup-go.outputs.go-version }}
+        job-name: ${{ inputs.job-name }}
+        go-sum-hash: ${{ hashFiles(**/go.sum) }}
+        date: ${{ date }}
+      with:
+        path: |
+          '~/.cache/go-build'
+          '~/go/pkg/mod'
+        key: golang-${{ runner.os }}-${{ env.go-version }}-${{ env.job-name }}-${{ env.go-sum-hash }}-${{ env.date }}
+        restore-keys: |
+          golang-${{ runner.os }}-${{ env.go-version }}-${{ env.job-name }}-${{ env.go-sum-hash }}-${{ env.date }}
+          golang-${{ runner.os }}-${{ env.go-version }}-${{ env.job-name }}-${{ env.go-sum-hash }}
+          golang-${{ runner.os }}-${{ env.go-version }}-${{ env.job-name }}
+          golang-${{ runner.os }}-${{ env.go-version }}
+          golang-${{ runner.os }}
